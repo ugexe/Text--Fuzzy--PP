@@ -8,6 +8,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw/distance_edits/;
 our $VERSION   = '0.01';
 
+# Get away with some XS for speed if available...
 local $@;
 eval { require List::Util; };
 unless ($@) {
@@ -114,29 +115,91 @@ sub nearest {
 sub _levenshtein {
     my ($source,$source_length,$target,$target_length,$max_distance) = @_;
 
-    my @scores;
-    $scores[0][0] = 0;
-    for (1 .. $source_length) {
-        $scores[$_][0] = $_;
-        return $_ if $_!=$source_length && substr($source,$_) eq substr($target,$_);
-    }
-    for (1 .. $target_length) {
-        $scores[0][$_] = $_;
-        return $_ if $_!=$target_length && substr($source,$_) eq substr($target,$_);
-    }
+    my @matrix;;
+    my ($i,$j,$large_value);
 
-    for my $i (1 .. $source_length) {
-        my $w1 = substr($source,$i-1,1);
-
-        for (1 .. $target_length) {
-            $scores[$i][$_] = min(
-                $scores[$i-1][$_]+1, 
-                $scores[$i][$_-1]+1, 
-                $scores[$i-1][$_-1]+($w1 eq substr($target,$_-1,1) ? 0 : 1),
-            );
+    if ($max_distance >= 0) {
+        $large_value = $max_distance + 1;
+    }
+    else {
+        if ($target_length > $source_length) {
+            $large_value = $target_length;
+        }
+        else {
+            $large_value = $source_length;
         }
     }
-    return $scores[$source_length][$target_length];    
+
+    for ($j = 0; $j <= $target_length; $j++) {
+        $matrix[0][$j] = $j;
+    }
+
+    for ($i = 1; $i <= $source_length; $i++) {
+        my ($col_min,$next,$prev);
+        my $c1 = substr($source,$i-1,1);
+        my $min_j = 1;
+        my $max_j = $target_length;
+
+        if ($max_distance >= 0) {
+            if ($i > $max_distance) {
+                $min_j = $i - $max_distance;
+            }
+            if ($target_length > $max_distance + $i) {
+                $max_j = $max_distance + $i;
+            }
+        }
+
+        $col_min = $large_value;
+        $next = $i % 2;
+
+        if ($next == 1) {
+            $prev = 0;
+        }
+        else {
+            $prev = 1;
+        }
+
+        $matrix[$next][0] = $i;
+
+        for ($j = 1; $j <= $target_length; $j++) {
+            if ($j < $min_j || $j > $max_j) {
+                $matrix[$next][$j] = $large_value;
+            }
+            else {
+                my $c2;
+
+                $c2 = substr($target,$j-1,1);
+                if ($c1 eq $c2) {
+                    $matrix[$next][$j] = $matrix[$prev][$j-1];
+                }
+                else {
+                    my $delete = $matrix[$prev][$j] + 1;#[% delete_cost %];
+                    my $insert = $matrix[$next][$j-1] + 1;#[% insert_cost %];
+                    my $substitute = $matrix[$prev][$j-1] + 1;#[% substitute_cost %];
+                    my $minimum = $delete;
+
+                    if ($insert < $minimum) {
+                        $minimum = $insert;
+                    }
+                    if ($substitute < $minimum) {
+                        $minimum = $substitute;
+                    }
+                    $matrix[$next][$j] = $minimum;
+                }
+            }
+            if ($matrix[$next][$j] < $col_min) {
+                $col_min = $matrix[$next][$j];
+            }
+        }
+
+        if ($max_distance >= 0) {
+            if ($col_min > $max_distance) {
+                return $large_value;
+            }
+        }
+    }
+
+    return $matrix[$source_length % 2][$target_length];
 }
 
 sub _damerau {
@@ -195,7 +258,7 @@ sub _damerau {
             }
         }
 
-        unless ( $max_distance == -1 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        unless ( !defined($max_distance) || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
         {
             return -1;
         }
