@@ -22,23 +22,14 @@ sub new {
     my $class  = shift;
     my $source = shift;
     my %args   = @_;
-
+    
     my $self  = {
         source        => $source,
         last_distance => undef,
         length        => length($source),
-        no_exact      => sub {
-            return 0 unless defined($args{'no_exact'});
-            return int(delete($args{'no_exact'}));
-        },
-        max_distance  => sub {
-            return 10 unless defined($args{'max'});
-            return int(delete($args{'max'}));
-        },
-        trans         => sub {
-            return 0 unless defined($args{'trans'});
-            return int(delete($args{'trans'}));
-        },
+        no_exact      => defined($args{'no_exact'}) ? int(delete($args{'no_exact'})) : 0,
+        max_distance  => defined($args{'max'})      ? int(delete($args{'max'}))      : 10,
+        trans         => defined($args{'trans'})    ? int(delete($args{'trans'}))    : 0,
     };
 
     bless( $self, $class );
