@@ -48,6 +48,7 @@ sub new {
 
 sub set_max_distance {
     my ($self,$max) = @_;
+    # set_max_distance() with no args = no max
     $max = -1 if (!defined $max);
     return unless $max >= -1;
     $self->{max_distance} = $max;
