@@ -207,7 +207,7 @@ sub _damerau {
     return $scores[ $source_length + 1 ][ $target_length + 1 ];	
 }
 
-sub _min{
+sub _min {
     return $_[0] < $_[1]
            ?( $_[0] < $_[2] ? $_[0] : $_[2] )
            :( $_[1] < $_[2] ? $_[1] : $_[2] );
