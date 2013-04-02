@@ -31,19 +31,19 @@ is( $tf_exact->distance('four'), 0, 'test distance() no_exact(1)');
 #max_distance testing
 my $tf_max = Text::Fuzzy::PP->new('four',max => 1);
 is($tf_max->distance('fuor'), undef, 'test distance with max => 1');
-$tf_max->set_max_distance(0);
-is($tf_max->distance('fuor'), 2, 'test nearest with set_max_distance(0)');
-$tf_max = Text::Fuzzy::PP->new('four',max => 0);
-is($tf_max->distance('fuor'), 2, 'test nearest with max => 0');
+$tf_max->set_max_distance();
+is($tf_max->distance('fuor'), 2, 'test nearest with set_max_distance()');
+$tf_max = Text::Fuzzy::PP->new('four',max => undef);
+is($tf_max->distance('fuor'), 2, 'test nearest with max => undef');
 $tf_max->set_max_distance(1);
 is($tf_max->distance('fuor'), undef, 'test nearest with set_max_distance(1)');
 
 #Test some utf8
 use utf8;
 my $tf_utf8 = Text::Fuzzy::PP->new('ⓕⓞⓤⓡ',trans => 1);
-is( $tf_utf8->distance('ⓕⓞⓤⓡ'), 0, 'test distance() trans => 1 matching (utf8)');
-is( $tf_utf8->distance('ⓕⓞⓡ'), 1, 'test distance() trans => 1 insertion (utf8)');
+is( $tf_utf8->distance('ⓕⓞⓤⓡ'),   0, 'test distance() trans => 1 matching (utf8)');
+is( $tf_utf8->distance('ⓕⓞⓡ'),    1, 'test distance() trans => 1 insertion (utf8)');
 is( $tf_utf8->distance('ⓕⓞⓤⓡⓣⓗ'), 2, 'test distance() trans => 1 deletion (utf8)');
-is( $tf_utf8->distance('ⓕⓤⓞⓡ'), 1, 'test distance() trans => 1 transposition (utf8)');
-is( $tf_utf8->distance('ⓕⓧⓧⓡ'), 2, 'test distance() trans => 1 substitution (utf8)');
+is( $tf_utf8->distance('ⓕⓤⓞⓡ'),   1, 'test distance() trans => 1 transposition (utf8)');
+is( $tf_utf8->distance('ⓕⓧⓧⓡ'),   2, 'test distance() trans => 1 substitution (utf8)');
 

@@ -1,10 +1,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Text::Fuzzy::PP;
 
 my @list = ('fourty','fxxr','fourth','fuor','');
+
+#defaults testing
+my $tf_default = Text::Fuzzy::PP->new('four');
+is($tf_default->nearest(\@list ), 3, 'test nearest defaults');
 
 #transposition testing
 my $tf_trans = Text::Fuzzy::PP->new('four',trans => 1);
@@ -31,10 +35,10 @@ pop @list;
 #max_distance testing
 my $tf_max = Text::Fuzzy::PP->new('..',max => 1);
 is($tf_max->nearest(\@list ), undef, 'test nearest with max => 1');
-$tf_max->set_max_distance(0);
-is($tf_max->nearest(\@list ), 1, 'test nearest with set_max_distance(0)');
-$tf_max = Text::Fuzzy::PP->new('..',max => 0);
-is($tf_max->nearest(\@list ), 1, 'test nearest with max => 0');
+$tf_max->set_max_distance();
+is($tf_max->nearest(\@list ), 1, 'test nearest with set_max_distance()');
+$tf_max = Text::Fuzzy::PP->new('..',max => undef);
+is($tf_max->nearest(\@list ), 1, 'test nearest with max => undef');
 $tf_max->set_max_distance(1);
 is($tf_max->nearest(\@list ), undef, 'test nearest with set_max_distance(1)');
 
