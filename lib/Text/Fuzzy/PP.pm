@@ -27,9 +27,9 @@ sub new {
         source        => $source,
         last_distance => undef,
         length        => length($source),
-        no_exact      => defined($args{'no_exact'}) ? int(delete($args{'no_exact'})) : 0,
-        max_distance  => defined($args{'max'})      ? int(delete($args{'max'}))      : 10,
-        trans         => defined($args{'trans'})    ? int(delete($args{'trans'}))    : 0,
+        no_exact      => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
+        max_distance  => defined($args{'max'})      ? delete($args{'max'})      : 10,
+        trans         => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
     };
 
     bless( $self, $class );
