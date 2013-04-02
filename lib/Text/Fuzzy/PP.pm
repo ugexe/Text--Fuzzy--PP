@@ -47,7 +47,8 @@ sub new {
 
 sub set_max_distance {
     my ($self,$max) = @_;
-    return unless $max >= 0;
+    $max = -1 if (!defined $max);
+    return unless $max >= -1;
     $self->{max_distance} = $max;
 }
 
@@ -170,7 +171,7 @@ sub _damerau {
 
             $target_char_count =
               $dictionary_count->{ substr( $target, $target_index - 1, 1 ) };
-	     $swap_score = $scores[$target_char_count][$swap_count] +
+	        $swap_score = $scores[$target_char_count][$swap_count] +
                   ( $source_index - $target_char_count - 1 ) + 1 +
                   ( $target_index - $swap_count - 1 );
 
@@ -194,7 +195,7 @@ sub _damerau {
             }
         }
 
-        unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        unless ( $max_distance == -1 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
         {
             return -1;
         }
@@ -206,8 +207,7 @@ sub _damerau {
     return $scores[ $source_length + 1 ][ $target_length + 1 ];	
 }
 
-sub _min
-{
+sub _min{
     return $_[0] < $_[1]
            ?( $_[0] < $_[2] ? $_[0] : $_[2] )
            :( $_[1] < $_[2] ? $_[1] : $_[2] );
