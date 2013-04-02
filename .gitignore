@@ -1,0 +1,14 @@
+blib
+*.bs
+XS.c
+*.o
+*.def
+dll.base
+dll.exp
+pm_to_blib
+MYMETA.*
+/Makefile
+*.tar
+*.gz
+*.old
+MANIFEST$

@@ -1,0 +1,203 @@
+package Text::Fuzzy::PP;
+use strict;
+use warnings;
+use utf8;
+use List::Util qw/min/;
+require Exporter;
+
+# TODO:
+# Defined $INT_MAX properly
+our $INT_MAX = 9999;
+
+our @ISA = qw(Exporter); 
+our @EXPORT = qw/distance_edits/;
+our $VERSION   = '0.01';
+ 
+sub new {
+    my $class  = shift;
+    my $source = shift;
+    my %args   = @_;
+
+    my $self  = {
+        source        => $source,
+        last_distance => undef,
+        length        => length($source),
+        no_exact      => sub {
+            return 0 unless defined($args{'no_exact'});
+            return int(delete($args{'no_exact'}));
+        },
+        max_distance  => sub {
+            return 10 unless defined($args{'max'});
+            return int(delete($args{'max'}));
+        },
+        trans         => sub {
+            return 0 unless defined($args{'trans'});
+            return int(delete($args{'trans'}));
+        },
+    };
+
+    bless( $self, $class );
+
+    return $self;
+}
+
+sub set_max_distance {
+    my ($self,$max) = @_;
+    return unless $max >= 0;
+    $self->{max_distance} = $max;
+}
+
+sub transpositions_ok {
+    my ($self,$onoff) = @_;
+    return unless $onoff == 0 || $onoff == 1;
+    $self->{trans} = $onoff;
+}
+
+sub no_exact {
+    my ($self,$onoff) = @_;
+    return unless $onoff == 0 || $onoff == 1;
+    $self->{no_exact} = $onoff;
+}
+
+sub distance {
+    my ($self,$target,$max) = @_;
+
+    if($self->{source} eq $target) {
+        return 0 unless $self->{no_exact};
+        return undef;
+    }
+
+    # $max overrides our objects max_distance
+    # allows nearest() to change he max_distance dynamically for speed
+    $max = $self->{max_distance} unless defined $max;
+
+    my $target_length = length($target);
+
+    return ($self->{length}?$self->{length}:$target_length) 
+        if(!$target_length || !$self->{length});
+
+    # pass the string lengths to keep from calling length() again later
+	if( $self->{trans} ) {
+        return _damerau($self->{source},$self->{length},$target,$target_length,$max);
+	}
+	else {
+        return _levenshtein($self->{source},$self->{length},$target,$target_length,$max);
+    }
+}
+
+sub nearest {
+    my ($self,$words) = @_;
+
+    if ( ref $words eq ref [] ) {
+        my $max = $self->{max_distance};
+        my $best_index;
+
+        for my $index ( 0 .. $#{ $words } ) {
+            my $d = $self->distance( $words->[$index],$max );
+
+            next if ( ($self->{no_exact} && $d == 0) || $d < 0 || 
+                      (defined($self->{last_distance}) && $d < $self->{last_distance}) );
+
+            $self->{last_distance} = $max = $d;
+            $best_index = $index;
+        }
+
+        return $best_index;
+    }
+}
+
+1;
+
+sub _levenshtein {
+    my ($source,$source_length,$target,$target_length,$max_distance) = @_;
+
+    my @scores;
+    $scores[0][0] = 0;
+    for (1 .. $source_length) {
+        $scores[$_][0] = $_;
+        return $_ if $_!=$source_length && substr($source,$_) eq substr($target,$_);
+    }
+    for (1 .. $target_length) {
+        $scores[0][$_] = $_;
+        return $_ if $_!=$target_length && substr($source,$_) eq substr($target,$_);
+    }
+
+    for my $i (1 .. $source_length) {
+        my $w1 = substr($source,$i-1,1);
+        for (1 .. $target_length) {
+            $scores[$i][$_] = min($scores[$i-1][$_]+1, $scores[$i][$_-1]+1, $scores[$i-1][$_-1]+($w1 eq substr($target,$_-1,1) ? 0 : 1));
+        }
+    }
+    return $scores[$source_length][$target_length];    
+}
+
+sub _damerau {
+    my ($source,$source_length,$target,$target_length,$max_distance) = @_;
+    
+    my $lengths_max = $source_length + $target_length;
+    my $dictionary_count = {};    #create dictionary to keep character count
+    my $swap_count;          
+    my $swap_score;          
+    my $target_char_count;   
+    my $source_index;
+    my $target_index;
+    my @scores;              
+
+    # init values outside of work loops
+    $scores[0][0] = $scores[1][0] = $scores[0][1] = $lengths_max;
+    $scores[1][1] = 0;
+
+    # Work Loops
+    foreach $source_index ( 1 .. $source_length ) {
+        $swap_count = 0;
+        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } = 0;
+        $scores[ $source_index + 1 ][1] = $source_index;
+        $scores[ $source_index + 1 ][0] = $lengths_max;
+
+        foreach $target_index ( 1 .. $target_length ) {
+            if ( $source_index == 1 ) {
+                $dictionary_count->{ substr( $target, $target_index - 1, 1 ) } = 0;
+                $scores[1][ $target_index + 1 ] = $target_index;
+                $scores[0][ $target_index + 1 ] = $lengths_max;
+            }
+
+            $target_char_count =
+              $dictionary_count->{ substr( $target, $target_index - 1, 1 ) };
+	     $swap_score = $scores[$target_char_count][$swap_count] +
+                  ( $source_index - $target_char_count - 1 ) + 1 +
+                  ( $target_index - $swap_count - 1 );
+
+            if (
+                substr( $source, $source_index - 1, 1 ) ne
+                substr( $target, $target_index - 1, 1 ) )
+            {
+                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
+                    $scores[$source_index][$target_index]+1,
+                    $scores[ $source_index + 1 ][$target_index]+1,
+                    $scores[$source_index][ $target_index + 1 ]+1,
+                    $swap_score
+                );
+            }
+            else {
+                $swap_count = $target_index;
+
+                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
+                  $scores[$source_index][$target_index], $swap_score
+                );
+            }
+        }
+
+        unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        {
+            return $INT_MAX;
+        }
+
+        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
+          $source_index;
+    }
+
+    return $scores[ $source_length + 1 ][ $target_length + 1 ];	
+}
+
+__END__
+
