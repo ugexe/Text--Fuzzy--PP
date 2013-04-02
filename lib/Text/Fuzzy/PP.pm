@@ -2,16 +2,20 @@ package Text::Fuzzy::PP;
 use strict;
 use warnings;
 use utf8;
-use List::Util qw/min/;
 require Exporter;
-
-# TODO:
-# Defined $INT_MAX properly
-our $INT_MAX = 9999;
 
 our @ISA = qw(Exporter); 
 our @EXPORT = qw/distance_edits/;
 our $VERSION   = '0.01';
+
+local $@;
+eval { require List::Util; };
+unless ($@) {
+    *min = \&List::Util::min;
+}
+else {
+    *min = \&_min;
+}
  
 sub new {
     my $class  = shift;
@@ -63,8 +67,7 @@ sub distance {
     my ($self,$target,$max) = @_;
 
     if($self->{source} eq $target) {
-        return 0 unless $self->{no_exact};
-        return undef;
+        return $self->{no_exact}?undef:0;
     }
 
     # $max overrides our objects max_distance
@@ -95,8 +98,7 @@ sub nearest {
         for my $index ( 0 .. $#{ $words } ) {
             my $d = $self->distance( $words->[$index],$max );
 
-            next if ( ($self->{no_exact} && $d == 0) || $d < 0 || 
-                      (defined($self->{last_distance}) && $d < $self->{last_distance}) );
+            next if ( !defined($d) || $d < 0 || (defined($self->{last_distance}) && $d < $self->{last_distance}) );
 
             $self->{last_distance} = $max = $d;
             $best_index = $index;
@@ -124,8 +126,13 @@ sub _levenshtein {
 
     for my $i (1 .. $source_length) {
         my $w1 = substr($source,$i-1,1);
+
         for (1 .. $target_length) {
-            $scores[$i][$_] = min($scores[$i-1][$_]+1, $scores[$i][$_-1]+1, $scores[$i-1][$_-1]+($w1 eq substr($target,$_-1,1) ? 0 : 1));
+            $scores[$i][$_] = min(
+                $scores[$i-1][$_]+1, 
+                $scores[$i][$_-1]+1, 
+                $scores[$i-1][$_-1]+($w1 eq substr($target,$_-1,1) ? 0 : 1),
+            );
         }
     }
     return $scores[$source_length][$target_length];    
@@ -189,7 +196,7 @@ sub _damerau {
 
         unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
         {
-            return $INT_MAX;
+            return -1;
         }
 
         $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
@@ -197,6 +204,13 @@ sub _damerau {
     }
 
     return $scores[ $source_length + 1 ][ $target_length + 1 ];	
+}
+
+sub _min
+{
+    return $_[0] < $_[1]
+           ?( $_[0] < $_[2] ? $_[0] : $_[2] )
+           :( $_[1] < $_[2] ? $_[1] : $_[2] );
 }
 
 __END__
