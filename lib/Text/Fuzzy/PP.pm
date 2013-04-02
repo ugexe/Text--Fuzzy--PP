@@ -115,7 +115,7 @@ sub nearest {
 sub _levenshtein {
     my ($source,$source_length,$target,$target_length,$max_distance) = @_;
 
-    my @matrix;;
+    my @scores;;
     my ($i,$j,$large_value);
 
     if ($max_distance >= 0) {
@@ -131,7 +131,7 @@ sub _levenshtein {
     }
 
     for ($j = 0; $j <= $target_length; $j++) {
-        $matrix[0][$j] = $j;
+        $scores[0][$j] = $j;
     }
 
     for ($i = 1; $i <= $source_length; $i++) {
@@ -159,23 +159,23 @@ sub _levenshtein {
             $prev = 1;
         }
 
-        $matrix[$next][0] = $i;
+        $scores[$next][0] = $i;
 
         for ($j = 1; $j <= $target_length; $j++) {
             if ($j < $min_j || $j > $max_j) {
-                $matrix[$next][$j] = $large_value;
+                $scores[$next][$j] = $large_value;
             }
             else {
                 my $c2;
 
                 $c2 = substr($target,$j-1,1);
                 if ($c1 eq $c2) {
-                    $matrix[$next][$j] = $matrix[$prev][$j-1];
+                    $scores[$next][$j] = $scores[$prev][$j-1];
                 }
                 else {
-                    my $delete = $matrix[$prev][$j] + 1;#[% delete_cost %];
-                    my $insert = $matrix[$next][$j-1] + 1;#[% insert_cost %];
-                    my $substitute = $matrix[$prev][$j-1] + 1;#[% substitute_cost %];
+                    my $delete = $scores[$prev][$j] + 1;#[% delete_cost %];
+                    my $insert = $scores[$next][$j-1] + 1;#[% insert_cost %];
+                    my $substitute = $scores[$prev][$j-1] + 1;#[% substitute_cost %];
                     my $minimum = $delete;
 
                     if ($insert < $minimum) {
@@ -184,11 +184,11 @@ sub _levenshtein {
                     if ($substitute < $minimum) {
                         $minimum = $substitute;
                     }
-                    $matrix[$next][$j] = $minimum;
+                    $scores[$next][$j] = $minimum;
                 }
             }
-            if ($matrix[$next][$j] < $col_min) {
-                $col_min = $matrix[$next][$j];
+            if ($scores[$next][$j] < $col_min) {
+                $col_min = $scores[$next][$j];
             }
         }
 
@@ -199,7 +199,7 @@ sub _levenshtein {
         }
     }
 
-    return $matrix[$source_length % 2][$target_length];
+    return $scores[$source_length % 2][$target_length];
 }
 
 sub _damerau {
