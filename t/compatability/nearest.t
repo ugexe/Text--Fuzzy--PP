@@ -46,12 +46,12 @@ pop @list; # remove exact match
 
 #max_distance testing
 {
-my $tf = Text::Fuzzy::PP->new('..',max => 1);
+my $tf = Text::Fuzzy::PP->new('....',max => 1);
 is( $tf->nearest(\@list), undef, 'test nearest with max => 1');
 $tf->set_max_distance();
 is( $list[$tf->nearest(\@list)], 'fxxr', 'test nearest with set_max_distance()');
 $tf->set_max_distance(1);
-$tf = Text::Fuzzy::PP->new('..',max => -1);
+$tf = Text::Fuzzy::PP->new('....',max => -1);
 is( $list[$tf->nearest(\@list)], 'fxxr', 'test nearest with max => -1');
 $tf->set_max_distance(1);
 is( $tf->nearest(\@list), undef, 'test nearest with set_max_distance(1)');

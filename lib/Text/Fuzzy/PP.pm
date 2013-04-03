@@ -92,8 +92,7 @@ sub nearest {
             my $d = $self->distance($words->[$_], $max);
 
             if( !defined($d) ) {
-                # no_exact => 1 match
-
+                # no_exact => 1 match or $d > $max
             }
             elsif( $max == -1 || $d < $max ) {  
                 # better match found
@@ -254,15 +253,17 @@ sub _damerau {
             }
         }
 
-        unless ( $max_distance == -1 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
-        {
-            return -1;
-        }
+        # This is where the $max_distance check goes ideally, but it doesn't pass tests
+        #if ( $max_distance != -1 && $max_distance < $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        #{
+        #    return -1;
+        #}
 
         $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
           $source_index;
     }
 
+    return -1 if ($max_distance != -1 && $scores[ $source_length + 1 ][ $target_length + 1 ] > $max_distance);
     return $scores[ $source_length + 1 ][ $target_length + 1 ];	
 }
 
