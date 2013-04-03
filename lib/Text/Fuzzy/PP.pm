@@ -131,7 +131,7 @@ sub _levenshtein {
 
     for ($i = 1; $i <= $source_length; $i++) {
         my ($col_min,$next,$prev);
-        my $c1 = substr($source,$i-1,1);
+        my $c1    = substr($source,$i-1,1);
         my $min_j = 1;
         my $max_j = $target_length;
 
@@ -167,10 +167,10 @@ sub _levenshtein {
                     $scores[$next][$j] = $scores[$prev][$j-1];
                 }
                 else {
-                    my $delete = $scores[$prev][$j] + 1;#[% delete_cost %];
-                    my $insert = $scores[$next][$j-1] + 1;#[% insert_cost %];
+                    my $delete     = $scores[$prev][$j] + 1;#[% delete_cost %];
+                    my $insert     = $scores[$next][$j-1] + 1;#[% insert_cost %];
                     my $substitute = $scores[$prev][$j-1] + 1;#[% substitute_cost %];
-                    my $minimum = $delete;
+                    my $minimum    = $delete;
 
                     if ($insert < $minimum) {
                         $minimum = $insert;
@@ -201,12 +201,8 @@ sub _damerau {
     my ($source,$source_length,$target,$target_length,$max_distance) = @_;
     
     my $lengths_max = $source_length + $target_length;
+    my ($swap_count,$swap_score,$target_char_count,$source_index,$target_index);          
     my $dictionary_count = {};    #create dictionary to keep character count
-    my $swap_count;          
-    my $swap_score;          
-    my $target_char_count;   
-    my $source_index;
-    my $target_index;
     my @scores;              
 
     # init values outside of work loops
