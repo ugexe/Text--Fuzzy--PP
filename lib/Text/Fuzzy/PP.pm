@@ -29,7 +29,7 @@ sub new {
         length        => length($source),
         no_exact      => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
         trans         => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
-        max_distance  => exists ($args{'max'})      ? (defined($args{'max'})    ?delete($args{'max'}):-1)  : 10,
+        max_distance  => defined($args{'max'})      ? delete($args{'max'})      :-1,
     };
 
     bless( $self, $class );
