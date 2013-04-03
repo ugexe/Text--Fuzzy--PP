@@ -47,7 +47,7 @@ is($tf->distance('fuor'), undef, 'test distance with max => 1');
 $tf->set_max_distance();
 is($tf->distance('fuor'), 2, 'test nearest with set_max_distance()');
 $tf->set_max_distance(1);
-$tf = Text::Fuzzy::PP->new('four',max => undef);
+$tf = Text::Fuzzy::PP->new('four',max => -1);
 is($tf->distance('fuor'), 2, 'test nearest with max => undef');
 $tf->set_max_distance(1);
 is($tf->distance('fuor'), undef, 'test nearest with set_max_distance(1)');
