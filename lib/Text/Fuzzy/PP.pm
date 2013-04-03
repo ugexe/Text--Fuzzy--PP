@@ -41,20 +41,17 @@ sub set_max_distance {
     my ($self,$max) = @_;
     # set_max_distance() with no args = no max
     $max = -1 if (!defined $max);
-    return unless $max >= -1;
-    $self->{max_distance} = $max;
+    $self->{max_distance} = $max if ($max >= -1);
 }
 
 sub transpositions_ok {
     my ($self,$onoff) = @_;
-    return unless $onoff == 0 || $onoff == 1;
-    $self->{trans} = $onoff;
+    $self->{trans} = $onoff if ($onoff == 0 || $onoff == 1);
 }
 
 sub no_exact {
     my ($self,$onoff) = @_;
-    return unless $onoff == 0 || $onoff == 1;
-    $self->{no_exact} = $onoff;
+    $self->{no_exact} = $onoff if ($onoff == 0 || $onoff == 1);
 }
 
 sub distance {
@@ -66,7 +63,7 @@ sub distance {
 
     # $max overrides our objects max_distance
     # allows nearest() to change he max_distance dynamically for speed
-    $max = $self->{max_distance} unless defined $max;
+    $max = defined($max)?$max:$self->{max_distance};
 
     my $target_length = length($target);
 
@@ -75,10 +72,12 @@ sub distance {
 
     # pass the string lengths to keep from calling length() again later
 	if( $self->{trans} ) {
-        return _damerau($self->{source},$self->{length},$target,$target_length,$max);
+        my $score = _damerau($self->{source},$self->{length},$target,$target_length,$max);
+        return ($score > 0)?$score:undef;
 	}
 	else {
-        return _levenshtein($self->{source},$self->{length},$target,$target_length,$max);
+        my $score = _levenshtein($self->{source},$self->{length},$target,$target_length,$max);
+        return ($score > 0)?$score:undef;
     }
 }
 
@@ -94,10 +93,6 @@ sub nearest {
 
             if( !defined($d) ) {
                 # no_exact => 1 match
-
-            }
-            elsif( $d == -1 ) {
-                # $d rejected due to max distance
 
             }
             elsif( $max == -1 || $d < $max ) {  
@@ -167,9 +162,8 @@ sub _levenshtein {
                 $scores[$next][$j] = $large_value;
             }
             else {
-                my $c2;
+                my $c2 = substr($target,$j-1,1);
 
-                $c2 = substr($target,$j-1,1);
                 if ($c1 eq $c2) {
                     $scores[$next][$j] = $scores[$prev][$j-1];
                 }
@@ -188,6 +182,7 @@ sub _levenshtein {
                     $scores[$next][$j] = $minimum;
                 }
             }
+
             if ($scores[$next][$j] < $col_min) {
                 $col_min = $scores[$next][$j];
             }
@@ -195,7 +190,7 @@ sub _levenshtein {
 
         if ($max_distance >= 0) {
             if ($col_min > $max_distance) {
-                return undef;
+                return -1;
             }
         }
     }
