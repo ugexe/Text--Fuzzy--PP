@@ -43,6 +43,7 @@ is($list[$tf->nearest(\@list )], 'fxxr', 'test nearest with no_exact(1)');
 pop @list;
 }
 
+
 #max_distance testing
 {
 my $tf = Text::Fuzzy::PP->new('..',max => 1);
@@ -55,6 +56,7 @@ is($list[$tf->nearest(\@list )], 'fxxr', 'test nearest with max => undef');
 $tf->set_max_distance(1);
 is($list[$tf->nearest(\@list )], undef, 'test nearest with set_max_distance(1)');
 }
+
 
 #Test some utf8
 {
