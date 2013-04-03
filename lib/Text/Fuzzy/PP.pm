@@ -87,32 +87,25 @@ sub nearest {
 
     if ( ref $words eq ref [] ) {
         my $max = $self->{max_distance};
-        my $best_index;
+        my $best_index = undef;
 
         for ( 0 .. $#{ $words } ) {
-            my $d = $self->distance( $words->[$_],$max );
+            my $d = $self->distance($words->[$_], $max);
 
             if( !defined($d) ) {
                 # no_exact => 1 match
 
-                next;
             }
-            elsif( $d < 0 ) {
-                # $d rejected due to max distance?
-                next;
-            }
-            elsif( $max > 0 && $d >= $max ) {
+            elsif( $d == -1 ) {
                 # $d rejected due to max distance
 
-                next;
             }
-
-            # better match found
-            $max = $d;
-            $best_index = $_;
+            elsif( $max == -1 || $d < $max ) {  
+                # better match found
+                $self->{last_distance} = $max = $d;
+                $best_index = $_;
+            }
         }
-
-        $self->{last_distance} = $max;
 
         return $best_index;
     }

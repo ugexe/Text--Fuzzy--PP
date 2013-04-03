@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 14;
 use Text::Fuzzy::PP;
 
-my @list = ('fourty','fxxr','fourth','fuor','');
+my @list = ('fourtyx','fxxr','fourth','fuor','');
 
 
 #defaults testing
