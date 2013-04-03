@@ -28,8 +28,8 @@ sub new {
         last_distance => undef,
         length        => length($source),
         no_exact      => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
-        max_distance  => defined($args{'max'})      ? delete($args{'max'})      : 10,
         trans         => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
+        max_distance  => exists ($args{'max'})      ? (defined($args{'max'})    ?delete($args{'max'}):-1)  : 10,
     };
 
     bless( $self, $class );
@@ -89,13 +89,13 @@ sub nearest {
         my $max = $self->{max_distance};
         my $best_index;
 
-        for my $index ( 0 .. $#{ $words } ) {
-            my $d = $self->distance( $words->[$index],$max );
+        for ( 0 .. $#{ $words } ) {
+            my $d = $self->distance( $words->[$_],$max );
 
             next if ( !defined($d) || $d < 0 || (defined($self->{last_distance}) && $d < $self->{last_distance}) );
 
             $self->{last_distance} = $max = $d;
-            $best_index = $index;
+            $best_index = $_;
         }
 
         return $best_index;
@@ -250,7 +250,7 @@ sub _damerau {
             }
         }
 
-        unless ( !defined($max_distance) || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        unless ( $max_distance == -1 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
         {
             return -1;
         }
