@@ -92,8 +92,22 @@ sub nearest {
         for ( 0 .. $#{ $words } ) {
             my $d = $self->distance( $words->[$_],$max );
 
-            next if ( !defined($d) || $d < 0 || (defined($self->{last_distance}) && $d >= $self->{last_distance}) );
+            if( !defined($d) ) {
+                # no_exact => 1 match
 
+                next;
+            }
+            elsif( $d < 0 ) {
+                # $d rejected due to max distance?
+                next;
+            }
+            elsif( $max > 0 && $d >= $max ) {
+                # $d rejected due to max distance
+
+                next;
+            }
+
+            # better match found
             $max = $d;
             $best_index = $_;
         }
