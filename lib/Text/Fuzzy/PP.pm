@@ -24,12 +24,17 @@ sub new {
     my %args   = @_;
     
     my $self  = {
-        source        => $source,
-        last_distance => undef,
-        length        => length($source),
-        no_exact      => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
-        trans         => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
-        max_distance  => defined($args{'max'})      ? delete($args{'max'})      :-1,
+        source               => $source,
+        #Workaround because Text::Fuzzy last_distance is a method, not a value
+        _last_distance       => undef,
+        last_distance        => sub {
+            my $self2 = shift;
+            return $self2->{_last_distance}; 
+        },
+        length               => length($source),
+        no_exact             => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
+        trans                => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
+        max_distance         => defined($args{'max'})      ? delete($args{'max'})      :-1,
     };
 
     bless( $self, $class );
@@ -96,7 +101,7 @@ sub nearest {
             }
             elsif( $max == -1 || $d < $max ) {  
                 # better match found
-                $self->{last_distance} = $max = $d;
+                $self->{_last_distance} = $max = $d;
                 $best_index = $_;
             }
         }
