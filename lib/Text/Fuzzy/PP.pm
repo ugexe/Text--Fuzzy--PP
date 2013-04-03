@@ -92,11 +92,13 @@ sub nearest {
         for ( 0 .. $#{ $words } ) {
             my $d = $self->distance( $words->[$_],$max );
 
-            next if ( !defined($d) || $d < 0 || (defined($self->{last_distance}) && $d < $self->{last_distance}) );
+            next if ( !defined($d) || $d < 0 || (defined($self->{last_distance}) && $d >= $self->{last_distance}) );
 
-            $self->{last_distance} = $max = $d;
+            $max = $d;
             $best_index = $_;
         }
+
+        $self->{last_distance} = $max;
 
         return $best_index;
     }
@@ -186,7 +188,7 @@ sub _levenshtein {
 
         if ($max_distance >= 0) {
             if ($col_min > $max_distance) {
-                return $large_value;
+                return undef;
             }
         }
     }
