@@ -71,11 +71,11 @@ sub distance {
         if(!$target_length || !$self->{length});
 
     # pass the string lengths to keep from calling length() again later
-	if( $self->{trans} ) {
+    if( $self->{trans} ) {
         my $score = _damerau($self->{source},$self->{length},$target,$target_length,$max);
         return ($score > 0)?$score:undef;
-	}
-	else {
+    }
+    else {
         my $score = _levenshtein($self->{source},$self->{length},$target,$target_length,$max);
         return ($score > 0)?$score:undef;
     }
@@ -267,9 +267,12 @@ sub _damerau {
 }
 
 sub _min {
-    return $_[0] < $_[1]
-           ?( $_[0] < $_[2] ? $_[0] : $_[2] )
-           :( $_[1] < $_[2] ? $_[1] : $_[2] );
+    my $min = shift;
+    return $min if not @_;
+
+    my $next = shift;
+    unshift @_, $min < $next ? $min : $next;
+    goto &_min;
 }
 
 __END__
