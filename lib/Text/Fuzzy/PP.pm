@@ -250,22 +250,22 @@ sub _damerau {
     my ($source,$source_length,$target,$target_length,$max_distance) = @_;
     
     my $lengths_max = $source_length + $target_length;
-    my ($swap_count,$swap_score,$target_char_count,$source_index,$target_index);          
+    my ($swap_count,$swap_score,$target_char_count);          
     my $dictionary_count = {};    #create dictionary to keep character count
     my @scores;              
 
     # init values outside of work loops
     $scores[0][0] = $scores[1][0] = $scores[0][1] = $lengths_max;
     $scores[1][1] = 0;
-
+ 
     # Work Loops
-    foreach $source_index ( 1 .. $source_length ) {
+    foreach my $source_index ( 1 .. $source_length ) {
         $swap_count = 0;
         $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } = 0;
         $scores[ $source_index + 1 ][1] = $source_index;
         $scores[ $source_index + 1 ][0] = $lengths_max;
 
-        foreach $target_index ( 1 .. $target_length ) {
+        foreach my $target_index ( 1 .. $target_length ) {
             if ( $source_index == 1 ) {
                 $dictionary_count->{ substr( $target, $target_index - 1, 1 ) } = 0;
                 $scores[1][ $target_index + 1 ] = $target_index;
@@ -339,7 +339,7 @@ sub _min {
 
 __END__
 
-=encoding UTF-8
+=encoding utf8
 
 =head1 NAME
 
@@ -471,16 +471,6 @@ transpositions:
 
     $tf->transpositions_ok (0);
 
-=head1 EXAMPLES
-
-=head1 SUPPORT
-
-=head2 Reporting a bug
-
-Please report bugs to:
-
-L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP>
-
 =head1 PRIVATE METHODS
 
 These methods are not expected to be useful for the general user. They
@@ -544,6 +534,20 @@ distance allowed.
 
 L<Text::Fuzzy> is authored by Ben Bullock (BKB). The levenshtein algorithm, 
 the documentation, and Text::Fuzzy's tests were taken directly from Text::Fuzzy.
+
+=head1 BUGS
+
+Please report bugs to:
+
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP>
+
+=head1 AUTHOR
+
+Nick Logan <F<ugexe@cpan.org>>
+
+=head1 LICENSE AND COPYRIGHT
+
+This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
 

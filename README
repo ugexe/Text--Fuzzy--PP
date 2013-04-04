@@ -118,13 +118,6 @@ METHODS
 
         $tf->transpositions_ok (0);
 
-EXAMPLES
-SUPPORT
-  Reporting a bug
-    Please report bugs to:
-
-    https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP
-
 PRIVATE METHODS
     These methods are not expected to be useful for the general user. They
     may be useful in benchmarking the module and checking its correctness.
@@ -180,4 +173,16 @@ ACKNOWLEDGEMENTS
     Text::Fuzzy is authored by Ben Bullock (BKB). The levenshtein algorithm,
     the documentation, and Text::Fuzzy's tests were taken directly from
     Text::Fuzzy.
+
+BUGS
+    Please report bugs to:
+
+    https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP
+
+AUTHOR
+    Nick Logan <ugexe@cpan.org>
+
+LICENSE AND COPYRIGHT
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
