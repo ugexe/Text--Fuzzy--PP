@@ -19,9 +19,7 @@ else {
 }
  
 sub new {
-    my $class  = shift;
-    my $source = shift;
-    my %args   = @_;
+    my ($class,$source,%args) = @_;
     
     my $self  = {
         source                => $source,
