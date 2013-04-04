@@ -460,7 +460,7 @@ Scan a file to find the nearest match to the word used in
 L</new>. This assumes that the file contains lines of text separated
 by newlines and finds the closest match in the file.
 
-This does not currently support Unicode-encoded files.
+This DOES support Unicode-encoded files, which differs from L<Text::Fuzzy> currently.
 
 =head2 transpositions_ok
 
