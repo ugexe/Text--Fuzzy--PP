@@ -4,6 +4,12 @@ use warnings;
 use utf8;
 require Exporter;
 
+# TODO:
+# distance_edits
+# ->scan_file
+# tests for above 2 TODOs
+# nearest() return @array based on context
+
 our @ISA = qw(Exporter); 
 our @EXPORT = qw/distance_edits/;
 our $VERSION   = '0.01';
