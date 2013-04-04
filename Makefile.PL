@@ -4,8 +4,8 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 my $pm =   'lib/Text/Fuzzy/PP.pm';
-#my $repo = 'https://github.com/ugexe/Text--Fuzzy--PP';
-#my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP';
+my $repo = 'https://github.com/ugexe/Text--Fuzzy--PP';
+my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP';
  
 WriteMakefile (  
     NAME => 'Text::Fuzzy::PP',
@@ -14,16 +14,13 @@ WriteMakefile (
     AUTHOR => 'Nick Logan <ugexe@cpan.org>',
     LICENSE => 'perl',
     MIN_PERL_VERSION => '5.008008',
-    PREREQ_PM => {
-	'List::Util'		=> 0,
-    },
     BUILD_REQUIRES => {
 	'Test::More'		=> 0,
     },
     META_MERGE => {
         resources => {
- #           repository => $repo, 
- #           bugtracker => $bugs,
+            repository => $repo, 
+            bugtracker => $bugs,
         },
     },
 
