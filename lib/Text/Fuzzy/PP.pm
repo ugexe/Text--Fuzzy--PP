@@ -156,6 +156,10 @@ sub nearest {
 
 1;
 
+sub distance_edits {
+    #TODO:   
+}
+
 sub _levenshtein {
     my ($source,$source_length,$target,$target_length,$max_distance) = @_;
 
