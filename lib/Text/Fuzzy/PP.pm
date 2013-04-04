@@ -24,18 +24,40 @@ sub new {
     my %args   = @_;
     
     my $self  = {
-        source               => $source,
-        #Workaround because Text::Fuzzy last_distance is a method, not a value
-        _last_distance       => undef,
-        length               => length($source),
-        no_exact             => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
-        trans                => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
-        max_distance         => defined($args{'max'})      ? delete($args{'max'})      :-1,
+        source                => $source,
+        _last_distance        => undef,
+        _length_rejections    => 0,        
+        _ualphabet_rejections => 0,        
+        _no_alphabet          => 0,
+        length                => length($source),
+        no_exact              => defined($args{'no_exact'}) ? delete($args{'no_exact'}) : 0,
+        trans                 => defined($args{'trans'})    ? delete($args{'trans'})    : 0,
+        max_distance          => defined($args{'max'})      ? delete($args{'max'})      :-1,
     };
 
     bless( $self, $class );
 
     return $self;
+}
+
+sub _no_alphabet {
+    my ($self,$onoff) = @_;
+    $self->{_no_alphabet} = $onoff if ($onoff == 0 || $onoff == 1);
+}
+
+sub get_trans {
+    my $self = shift;
+    return $self->{trans};
+}
+
+sub ualphabet_rejections {
+    my $self = shift;
+    return $self->{_ualphabet_rejections};
+}
+
+sub length_rejections {
+    my $self = shift;
+    return $self->{_length_rejections};
 }
 
 sub unicode_length {
@@ -105,6 +127,19 @@ sub nearest {
         my $best_index = undef;
 
         for ( 0 .. $#{ $words } ) {
+            # compatability
+            if( $max != -1 && abs($self->{length} - length($words->[$_])) > $max ) {
+                $self->{_length_rejections}++;
+                next;
+            }
+
+            # compatability
+            if ( $max != -1 && _alphabet_difference($self->{source},$words->[$_]) > $max) {
+                $self->{_ualphabet_rejections}++;
+                next;
+            }
+
+
             my $d = $self->distance($words->[$_], $max);
 
             if( !defined($d) ) {
@@ -277,6 +312,22 @@ sub _damerau {
 
     return -1 if ($max_distance != -1 && $scores[ $source_length + 1 ][ $target_length + 1 ] > $max_distance);
     return $scores[ $source_length + 1 ][ $target_length + 1 ];	
+}
+
+# this function is very unoptimized
+sub _alphabet_difference {
+    my $source = shift;
+    my $target = shift;
+    my %dict;
+    my $missing = 0;
+
+    for (0 .. length($source)) {
+        my $char = substr($source,$_,1);
+        $missing++ if(!exists $dict{$char} && $target !~ $char);
+        $dict{$char} = 1;
+    }
+
+    return $missing;
 }
 
 sub _min {
