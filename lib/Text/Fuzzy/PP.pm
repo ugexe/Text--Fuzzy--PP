@@ -5,10 +5,13 @@ use utf8;
 require Exporter;
 
 # TODO:
-# distance_edits
+# Distance_edits
 # ->scan_file
-# tests for above 2 TODOs
-# nearest() return @array based on context
+# Tests for above 2 TODOs
+# Nearest() return @array based on context
+# Pod2txt README after docs are updated
+# Tests to check if ualphabet_rejection and 
+#     length_rejections really work for trans (applies to Text::Fuzzy)
 
 our @ISA = qw(Exporter); 
 our @EXPORT = qw/distance_edits/;
@@ -128,7 +131,7 @@ sub nearest {
 
     if ( ref $words eq ref [] ) {
         my $max = $self->{max_distance};
-        my $best_index = undef;
+        my @best_index;
 
         for ( 0 .. $#{ $words } ) {
             # compatability
@@ -149,14 +152,18 @@ sub nearest {
             if( !defined($d) ) {
                 # no_exact => 1 match or $d > $max
             }
-            elsif( $max == -1 || $d < $max ) {  
-                # better match found
-                $self->{_last_distance} = $max = $d;
-                $best_index = $_;
-            }
+            elsif( $max == -1 || $d <= $max ) {  
+                if( $d == $max) {
+                    push @best_index, $_;
+                }
+                else {
+                    $self->{_last_distance} = $max = $d;
+                    $best_index[0] = $_;
+                }
+            }   
         }
 
-        return $best_index;
+        return (wantarray?@best_index:$best_index[0]);
     }
 }
 
