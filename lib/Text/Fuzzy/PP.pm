@@ -8,7 +8,6 @@ require Exporter;
 # Distance_edits
 # ->scan_file
 # Tests for above 2 TODOs
-# Nearest() return @array based on context
 # Pod2txt README after docs are updated
 # Tests to check if ualphabet_rejection and 
 #     length_rejections really work for trans (applies to Text::Fuzzy)
@@ -45,6 +44,22 @@ sub new {
     bless( $self, $class );
 
     return $self;
+}
+
+sub scan_file {
+    my ($self,$file_path,%args) = @_;
+
+    my @words;
+    open my $fh, '<', $file_path or die "failed to open $file_path\n";
+    binmode(STDOUT,defined($args{'binmode'}) ? delete($args{'binmode'}) : undef);
+    while(<$fh>) {
+        chomp;
+        
+        push @words, $_;
+    }
+    close $fh;
+
+    return wantarray()?@{$self->nearest(\@words)}:$self->nearest(\@words);
 }
 
 sub _no_alphabet {
