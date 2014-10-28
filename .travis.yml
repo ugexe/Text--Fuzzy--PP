@@ -21,6 +21,7 @@ matrix:
 before_install:
    - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
    - source ~/travis-perl-helpers/init
+   - git reset --hard 3f4179a4df62e69659cd3148785698cb26e223e5
    - build-perl
    - perl -V
    - build-dist
