@@ -19,7 +19,7 @@ matrix:
       - perl: "5.6"
       
 before_install:
-   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+   - git clone git://github.com/ugexe/helpers ~/travis-perl-helpers
    - source ~/travis-perl-helpers/init
    - git reset --hard 3f4179a
    - build-perl
