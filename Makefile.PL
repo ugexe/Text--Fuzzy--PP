@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 
 my $pm =   'lib/Text/Fuzzy/PP.pm';
 my $repo = 'https://github.com/ugexe/Text--Fuzzy--PP';
-my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Fuzzy-PP';
+my $bugs = 'https://github.com/ugexe/Text--Fuzzy--PP/issues';
  
 WriteMakefile (  
     NAME => 'Text::Fuzzy::PP',
@@ -15,7 +15,7 @@ WriteMakefile (
     LICENSE => 'perl',
     MIN_PERL_VERSION => '5.008008',
     BUILD_REQUIRES => {
-	'Test::More'		=> 0,
+	'Test::More'		=> '0.98_01',
     },
     META_MERGE => {
         resources => {
@@ -23,6 +23,4 @@ WriteMakefile (
             bugtracker => $bugs,
         },
     },
-
-    depend => { '$(FIRST_MAKEFILE)' => '$(VERSION_FROM)' },
 );

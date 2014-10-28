@@ -35,7 +35,7 @@ before_script:
 
 script:
    - cpan-install .
-   - prove -brsv -j$((SYSTEM_CORES + 1)) $(test-dirs)
+   - prove -lrsv -j$((SYSTEM_CORES + 1)) $(test-dirs)
 
 after_success:
    - coverage-report
