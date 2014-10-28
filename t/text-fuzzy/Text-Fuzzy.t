@@ -2,7 +2,7 @@ use warnings;
 use strict;
 use Test::More;
 BEGIN { use_ok('Text::Fuzzy::PP') };
-use Text::Fuzzy;
+use Text::Fuzzy::PP;
 
 my $tf = Text::Fuzzy::PP->new ('buggles');
 ok ($tf);
